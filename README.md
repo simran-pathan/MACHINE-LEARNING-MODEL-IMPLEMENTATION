@@ -44,3 +44,8 @@ Displays precision, recall, and F1-score with classification_report().
 Prints dataset details, model accuracy, and performance metrics.
 The confusion matrix highlights classification performance.
 The classification report shows how well the model differentiates spam from ham.
+
+*OUTPUT*:
+
+![image](https://github.com/user-attachments/assets/41979e99-4ef7-4ddc-8a40-ee286ca62d4c)
+
