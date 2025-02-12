@@ -1,0 +1,68 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Load the dataset
+data = pd.read_csv("spam.csv", encoding='latin-1')
+
+# Display actual column names
+print("Actual column names:", data.columns)
+
+# Select the first two relevant columns dynamically
+data = data.iloc[:, [0, 1]]
+data.columns = ['label', 'message']  # Rename columns
+
+# Convert labels to numbers (ham = 0, spam = 1)
+data['label'] = data['label'].map({'ham': 0, 'spam': 1})
+
+# Display dataset information
+print("Dataset preview:")
+print(data.head())
+print("\nDataset summary:")
+print(data.info())
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(data['message'], data['label'], test_size=0.2, random_state=42)
+
+# Convert text messages into numerical form
+vectorizer = CountVectorizer()
+X_train_counts = vectorizer.fit_transform(X_train)
+X_test_counts = vectorizer.transform(X_test)
+
+# Use TF-IDF transformation
+tfidf_transformer = TfidfTransformer()
+X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+X_test_tfidf = tfidf_transformer.transform(X_test_counts)
+
+# Train a spam detection model
+model = MultinomialNB()
+model.fit(X_train_tfidf, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test_tfidf)
+
+# Check accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Model Accuracy: {accuracy * 100:.2f}%")
+
+# Generate a confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:")
+print(conf_matrix)
+
+# Plot the confusion matrix
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=['Ham', 'Spam'], yticklabels=['Ham', 'Spam'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
+
+# Print classification report
+print("Classification Report:")
+print(classification_report(y_test, y_pred))
+
